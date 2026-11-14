@@ -32,7 +32,7 @@ class WakeVerificationConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="stt")
                 ),
                 vol.Required("language", default="en-US"): str,
-                vol.Required("archive_dir", default="/wake-archive"): str,
+                vol.Optional("archive_dir", default=""): str,
             }),
         )
 

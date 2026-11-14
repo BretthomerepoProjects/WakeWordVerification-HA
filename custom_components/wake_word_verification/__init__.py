@@ -60,7 +60,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Required("phrase"): vol.All(cv.string, vol.Length(min=1, max=80)),
         vol.Required("stt_engine"): cv.string,
         vol.Required("language"): cv.string,
-        vol.Required("archive_dir"): cv.string,
+        vol.Optional("archive_dir", default=""): cv.string,
     }), validate_satellites),
 }, extra=vol.ALLOW_EXTRA)
 
@@ -289,11 +289,28 @@ async def setup_listener(hass, settings):
     if DOMAIN in hass.data:
         _LOGGER.error("Remove the YAML configuration before adding the UI entry")
         return False
-    directory = Path(settings["archive_dir"])
-    if not directory.is_absolute() or not await hass.async_add_executor_job(directory.is_dir):
-        _LOGGER.error("Configure an existing absolute private archive directory")
+    try:
+        directory = await hass.async_add_executor_job(
+            prepare_archive, Path(hass.config.config_dir), settings["archive_dir"]
+        )
+    except OSError as err:
+        _LOGGER.error("Cannot initialize private wake archive: %s", err)
         return False
     view = VerifyView(hass, settings, directory)
     hass.http.register_view(view)
     hass.data[DOMAIN] = view
     return True
+
+
+def prepare_archive(config_dir, configured_path):
+    default = config_dir / "wake_word_verification_archive"
+    directory = Path(configured_path) if configured_path else default
+    if configured_path == "/wake-archive" and not directory.exists():
+        directory = default
+    if not directory.is_absolute():
+        raise OSError("Archive path must be absolute")
+    directory = directory.resolve()
+    if directory.is_relative_to((config_dir / "www").resolve()):
+        raise OSError("Archive path must be outside the public www directory")
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return directory

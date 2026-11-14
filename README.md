@@ -14,10 +14,10 @@ wake_word_verification:
   phrase: "Alexa"
   stt_engine: stt.parakeet
   language: en-US
-  archive_dir: /wake-archive
+  archive_dir: ""
 ```
 
-Use an existing private writable archive mount outside the Home Assistant configuration directory. Keep the path out of publicly served directories. The Parakeet connection is configured in its Home Assistant STT provider, such as a Wyoming STT entity backed by Parakeet. No token is provisioned on Spot 2. Use a unique reserved IP per satellite and reach Home Assistant directly, since the listener checks the immediate connection peer and ignores forwarded headers.
+Leave the archive directory blank to create a private wake_word_verification_archive folder in the persistent configuration directory. Existing /wake-archive directories are preserved. Keep the path out of publicly served directories. The Parakeet connection is configured in its Home Assistant STT provider, such as a Wyoming STT entity backed by Parakeet. No token is provisioned on Spot 2. Use a unique reserved IP per satellite and reach Home Assistant directly, since the listener checks the immediate connection peer and ignores forwarded headers.
 
 ## Set up from the Home Assistant UI
 
