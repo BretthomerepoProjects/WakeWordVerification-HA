@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry, entity_registry
-from homeassistant.helpers.network import get_url, NoURLAvailable
+from homeassistant.helpers.network import get_url, NoURLAvailableError
 
 _LOGGER = logging.getLogger(__name__)
 PATH = "/api/wake_word_verification/v1/verify"
@@ -34,7 +34,7 @@ async def sync_satellites(hass, view):
     """Retry pending devices. A matching response means the URL was saved."""
     try:
         endpoint = get_url(hass, allow_external=False, prefer_external=False).rstrip("/") + PATH
-    except NoURLAvailable:
+    except NoURLAvailableError:
         return
     for satellite in list(view.satellites.values()):
         entity_id = satellite["satellite_entity_id"]
