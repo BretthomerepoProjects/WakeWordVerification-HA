@@ -1,0 +1,44 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure wake verification",
+        "data": {
+          "phrase": "Expected wake phrase",
+          "stt_engine": "Parakeet-backed STT entity",
+          "language": "STT language",
+          "archive_dir": "Private archive directory"
+        }
+      },
+      "satellite": {
+        "title": "Allow a satellite",
+        "description": "Pick the entity that identifies this satellite and enter its reserved LAN address.",
+        "data": {
+          "satellite_ip": "Satellite reserved LAN IP",
+          "satellite_entity_id": "Satellite entity",
+          "add_another": "Add another satellite"
+        }
+      }
+    },
+    "error": {
+      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity."
+    },
+    "abort": {
+      "already_configured": "Wake Word Verification is already configured."
+    }
+  },
+  "options": {
+    "error": {
+      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity."
+    },
+    "step": {
+      "init": {
+        "title": "Add satellite",
+        "data": {
+          "satellite_entity_id": "Satellite entity",
+          "satellite_ip": "Satellite reserved LAN IP"
+        }
+      }
+    }
+  }
+}

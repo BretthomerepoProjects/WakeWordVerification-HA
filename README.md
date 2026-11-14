@@ -19,6 +19,10 @@ wake_word_verification:
 
 Use an existing private writable archive mount outside the Home Assistant configuration directory. Keep the path out of publicly served directories. The Parakeet connection is configured in its Home Assistant STT provider, such as a Wyoming STT entity backed by Parakeet. No token is provisioned on Spot 2. Use a unique reserved IP per satellite and reach Home Assistant directly, since the listener checks the immediate connection peer and ignores forwarded headers.
 
+## Set up from the Home Assistant UI
+
+After downloading through HACS, restart Home Assistant. Go to Settings → Devices & services → Add integration → Wake Word Verification. Choose the Parakeet-backed STT entity and set the wake phrase, language and private archive directory. Then pick each allowed satellite entity and enter its reserved LAN IP. Check **Add another satellite** before submitting an entry to register another device. Later, open Wake Word Verification under Devices & services and select Configure to add another satellite. Remove any existing YAML block before switching to UI setup.
+
 ## Satellite protocol
 
 POST /api/wake_word_verification/v1/verify with Content-Type application/octet-stream, X-Wake-Event-Id (UUID), X-Wake-Score (0–1), and optionally X-Wake-Clarity (0–1). Send up to two seconds of mono 16 kHz signed 16-bit little-endian PCM. The response contains event_id, approved, and reason. Fail closed on timeout, non-200 status, or an unexpected event ID. Requests must use a fresh ID for each candidate. This release does not include the firmware client.

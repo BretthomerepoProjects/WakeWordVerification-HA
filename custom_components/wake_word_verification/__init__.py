@@ -255,10 +255,33 @@ class VerifyView(HomeAssistantView):
 
 
 async def async_setup(hass, config):
-    settings = config[DOMAIN]
+    if DOMAIN in config:
+        return await setup_listener(hass, config[DOMAIN])
+    return True
+
+
+async def async_setup_entry(hass, entry):
+    settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
+    if not await setup_listener(hass, settings):
+        return False
+    entry.async_on_unload(entry.add_update_listener(update_satellites))
+    return True
+
+
+async def update_satellites(hass, entry):
+    settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
+    hass.data[DOMAIN].satellites = settings["satellites"]
+
+
+async def setup_listener(hass, settings):
+    if DOMAIN in hass.data:
+        _LOGGER.error("Remove the YAML configuration before adding the UI entry")
+        return False
     directory = Path(settings["archive_dir"])
     if not directory.is_absolute() or not await hass.async_add_executor_job(directory.is_dir):
         _LOGGER.error("Configure an existing absolute private archive directory")
         return False
-    hass.http.register_view(VerifyView(hass, settings, directory))
+    view = VerifyView(hass, settings, directory)
+    hass.http.register_view(view)
+    hass.data[DOMAIN] = view
     return True
