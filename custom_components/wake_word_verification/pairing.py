@@ -10,18 +10,22 @@ _LOGGER = logging.getLogger(__name__)
 PATH = "/api/wake_word_verification/v1/verify"
 
 
-def node_action(hass, entity_id):
+def node_action(hass, entity_id, address):
     entity = entity_registry.async_get(hass).async_get(entity_id)
-    if not entity or not entity.device_id:
-        return None
-    device = device_registry.async_get(hass).async_get(entity.device_id)
-    if not device:
-        return None
+    device = (
+        device_registry.async_get(hass).async_get(entity.device_id)
+        if entity and entity.device_id else None
+    )
+    esphome_entries = hass.config_entries.async_entries("esphome")
     entries = [
-        entry for entry_id in device.config_entries
-        if (entry := hass.config_entries.async_get_entry(entry_id))
-        and entry.domain == "esphome"
+        entry for entry in esphome_entries
+        if device and entry.entry_id in device.config_entries
     ]
+    if not entries:
+        entries = [
+            entry for entry in esphome_entries
+            if entry.data.get("host") == str(address)
+        ]
     if len(entries) != 1:
         return None
     info = getattr(getattr(entries[0], "runtime_data", None), "device_info", None)
@@ -40,7 +44,7 @@ async def sync_satellites(hass, view):
         entity_id = satellite["satellite_entity_id"]
         if view.paired.get(entity_id) == endpoint:
             continue
-        action = node_action(hass, entity_id)
+        action = node_action(hass, entity_id, satellite["satellite_ip"])
         if not action or not hass.services.has_service("esphome", action):
             continue
         try:
