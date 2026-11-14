@@ -19,7 +19,7 @@ import voluptuous as vol
 
 from homeassistant.components import stt
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, device_registry as dr
 
 DOMAIN = "wake_word_verification"
 _LOGGER = logging.getLogger(__name__)
@@ -264,6 +264,7 @@ async def async_setup_entry(hass, entry):
     settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
     if not await setup_listener(hass, settings):
         return False
+    register_satellites(hass, entry, settings["satellites"])
     entry.async_on_unload(entry.add_update_listener(update_satellites))
     return True
 
@@ -271,6 +272,17 @@ async def async_setup_entry(hass, entry):
 async def update_satellites(hass, entry):
     settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
     hass.data[DOMAIN].satellites = settings["satellites"]
+    register_satellites(hass, entry, settings["satellites"])
+
+
+def register_satellites(hass, entry, satellites):
+    registry = dr.async_get(hass)
+    for satellite in satellites.values():
+        registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, satellite["satellite_entity_id"])},
+            name=satellite["satellite_name"],
+        )
 
 
 async def setup_listener(hass, settings):

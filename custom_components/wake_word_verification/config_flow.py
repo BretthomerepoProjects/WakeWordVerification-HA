@@ -75,13 +75,13 @@ class SatelliteOptionsFlow(config_entries.OptionsFlow):
     """Add another allowed satellite."""
 
     async def async_step_init(self, user_input=None):
+        current = self.config_entry.options.get(
+            "satellites", self.config_entry.data["satellites"]
+        )
         errors = {}
         if user_input is not None:
             entity_id = user_input["satellite_entity_id"]
             state = self.hass.states.get(entity_id)
-            current = self.config_entry.options.get(
-                "satellites", self.config_entry.data["satellites"]
-            )
             satellites = [*current, {
                 "satellite_entity_id": entity_id,
                 "satellite_ip": user_input["satellite_ip"],
@@ -95,6 +95,12 @@ class SatelliteOptionsFlow(config_entries.OptionsFlow):
                 return self.async_create_entry(title="", data={"satellites": satellites})
         return self.async_show_form(
             step_id="init",
+            description_placeholders={
+                "satellites": "\n".join(
+                    f"- {entry['satellite_name']} (`{entry['satellite_entity_id']}`) — `{entry['satellite_ip']}`"
+                    for entry in current
+                )
+            },
             data_schema=vol.Schema({
                 vol.Required("satellite_entity_id"): selector.EntitySelector(
                     selector.EntitySelectorConfig()

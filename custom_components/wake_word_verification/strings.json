@@ -37,7 +37,8 @@
         "data": {
           "satellite_entity_id": "Satellite entity",
           "satellite_ip": "Satellite reserved LAN IP"
-        }
+        },
+        "description": "Paired satellites:\n\n{satellites}\n\nSelect another satellite below to add it."
       }
     }
   }
