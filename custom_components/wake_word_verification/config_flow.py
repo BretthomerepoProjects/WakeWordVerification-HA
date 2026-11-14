@@ -155,10 +155,12 @@ class SatelliteOptionsFlow(SetupSteps, config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         self.settings = {**self.config_entry.data, **self.config_entry.options}
         self.satellites = self.settings.pop("satellites")
+        paired = getattr(self.hass.data.get(DOMAIN), "paired", {})
         return self.async_show_menu(
             step_id="init", menu_options=["satellite", "engine"],
             description_placeholders={"satellites": "\n".join(
                 f"- {entry['satellite_name']} (`{entry['satellite_entity_id']}`) — `{entry['satellite_ip']}`"
+                + (" · Ready" if entry["satellite_entity_id"] in paired else " · Pending")
                 for entry in self.satellites
             )},
         )

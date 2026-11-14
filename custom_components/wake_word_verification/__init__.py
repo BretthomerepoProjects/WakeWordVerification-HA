@@ -21,6 +21,8 @@ from homeassistant.components import stt
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.helpers import config_validation as cv, device_registry as dr
 
+from .pairing import sync_satellites
+
 DOMAIN = "wake_word_verification"
 _LOGGER = logging.getLogger(__name__)
 MAX_AUDIO_BYTES = 64000
@@ -138,6 +140,8 @@ class VerifyView(HomeAssistantView):
         self.directory = directory
         self.busy = set()
         self.pending = set()
+        self.paired = {}
+        self.pairing_lock = asyncio.Lock()
         self.satellites = settings.get("satellites") or satellite_map([settings])
 
     async def post(self, request):
@@ -268,7 +272,18 @@ async def async_setup_entry(hass, entry):
         return False
     register_satellites(hass, entry, settings["satellites"])
     entry.async_on_unload(entry.add_update_listener(update_satellites))
+    task = entry.async_create_background_task(
+        hass, pair_automatically(hass, hass.data[DOMAIN]), "wake verifier pairing"
+    )
+    entry.async_on_unload(task.cancel)
     return True
+
+
+async def pair_automatically(hass, view):
+    while True:
+        async with view.pairing_lock:
+            await sync_satellites(hass, view)
+        await asyncio.sleep(30)
 
 
 async def update_satellites(hass, entry):
@@ -276,6 +291,8 @@ async def update_satellites(hass, entry):
     view = hass.data[DOMAIN]
     view.settings = settings
     view.satellites = settings["satellites"]
+    async with view.pairing_lock:
+        await sync_satellites(hass, view)
     register_satellites(hass, entry, settings["satellites"])
 
 

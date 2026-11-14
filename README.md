@@ -32,3 +32,14 @@ POST /api/wake_word_verification/v1/verify with Content-Type application/octet-s
 The archive contains wake-events.sqlite3 and one WAV per saved request. The wake_events table holds both scores, STT text, a private file URI, audio BLOB and WAV checksum, verdict and reason, timestamp, duration, STT latency, expected phrase, and mapped satellite entity ID and name. Missing clarity is NULL. The file URI is visible to an operator with filesystem access to the archive mount.
 
 Archive writes run in the background with a bounded backlog. Write failures and overload are reported with the event ID in Home Assistant logs. The pilot does not have a durable retry queue or automatic retention. A restart can lose pending writes. Requests rejected before PCM validation have no clip to archive.
+
+## Automatic satellite pairing
+
+With firmware that exposes the configure_wake_verifier ESPHome action, adding
+a satellite automatically sends the verifier URL over its encrypted ESPHome
+connection. The integration uses Home Assistant's internal URL. Make sure that
+URL is directly reachable from the satellites and that their reserved addresses
+match the allowlist. Configure shows Ready after the device acknowledges the
+saved URL. Pending devices are retried every 30 seconds, including existing
+enrollments when the integration starts. Older firmware needs a manual firmware
+update to support automatic pairing. Verification requests require no token.
