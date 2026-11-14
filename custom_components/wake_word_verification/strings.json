@@ -56,7 +56,8 @@
         "title": "Configure Wake Word Verification",
         "menu_options": {
           "satellite": "Add satellite",
-          "engine": "Change STT engine or language"
+          "engine": "Change STT engine or language",
+          "remove_satellite": "Remove satellite"
         }
       },
       "engine": {
@@ -84,6 +85,13 @@
           "add_another": "Add another satellite",
           "satellite_ip": "Satellite reserved LAN IP"
         }
+      },
+      "remove_satellite": {
+        "data": {
+          "satellite_entity_id": "Satellite to remove"
+        },
+        "title": "Remove satellite",
+        "description": "The selected satellite will lose access to wake verification. Saved wake events are kept."
       }
     }
   }

@@ -58,7 +58,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Inclusive("satellite_ip", "legacy satellite"): vol.All(cv.string, vol.Coerce(ip_address)),
         vol.Inclusive("satellite_entity_id", "legacy satellite"): cv.entity_id,
         vol.Inclusive("satellite_name", "legacy satellite"): cv.string,
-        vol.Optional("satellites"): vol.All([SATELLITE_SCHEMA], vol.Length(min=1), satellite_map),
+        vol.Optional("satellites"): vol.All([SATELLITE_SCHEMA], satellite_map),
         vol.Required("phrase"): vol.All(cv.string, vol.Length(min=1, max=80)),
         vol.Required("stt_engine"): cv.string,
         vol.Required("language"): cv.string,
@@ -142,7 +142,7 @@ class VerifyView(HomeAssistantView):
         self.pending = set()
         self.paired = {}
         self.pairing_lock = asyncio.Lock()
-        self.satellites = settings.get("satellites") or satellite_map([settings])
+        self.satellites = settings["satellites"] if "satellites" in settings else satellite_map([settings])
 
     async def post(self, request):
         peer = request.transport.get_extra_info("peername") if request.transport else None
@@ -289,10 +289,21 @@ async def pair_automatically(hass, view):
 async def update_satellites(hass, entry):
     settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
     view = hass.data[DOMAIN]
+    removed = {
+        item["satellite_entity_id"] for item in view.satellites.values()
+    } - {
+        item["satellite_entity_id"] for item in settings["satellites"].values()
+    }
     view.settings = settings
     view.satellites = settings["satellites"]
     async with view.pairing_lock:
         await sync_satellites(hass, view)
+    registry = dr.async_get(hass)
+    for entity_id in removed:
+        view.paired.pop(entity_id, None)
+        device = registry.async_get_device(identifiers={(DOMAIN, entity_id)})
+        if device:
+            registry.async_remove_device(device.id)
     register_satellites(hass, entry, settings["satellites"])
 
 

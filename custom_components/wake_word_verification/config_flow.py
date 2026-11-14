@@ -157,7 +157,7 @@ class SatelliteOptionsFlow(SetupSteps, config_entries.OptionsFlow):
         self.satellites = self.settings.pop("satellites")
         paired = getattr(self.hass.data.get(DOMAIN), "paired", {})
         return self.async_show_menu(
-            step_id="init", menu_options=["satellite", "engine"],
+            step_id="init", menu_options=["satellite", "engine"] + (["remove_satellite"] if self.satellites else []),
             description_placeholders={"satellites": "\n".join(
                 f"- {entry['satellite_name']} (`{entry['satellite_entity_id']}`) — `{entry['satellite_ip']}`"
                 + (" · Ready" if entry["satellite_entity_id"] in paired else " · Pending")
@@ -170,3 +170,25 @@ class SatelliteOptionsFlow(SetupSteps, config_entries.OptionsFlow):
 
     def finish(self):
         return self.async_create_entry(title="", data={**self.settings, "satellites": self.satellites})
+
+
+    async def async_step_remove_satellite(self, user_input=None):
+        if user_input is not None:
+            entity_id = user_input["satellite_entity_id"]
+            self.satellites = [
+                entry for entry in self.satellites
+                if entry["satellite_entity_id"] != entity_id
+            ]
+            return self.finish()
+        return self.async_show_form(
+            step_id="remove_satellite",
+            data_schema=vol.Schema({
+                vol.Required("satellite_entity_id"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=[
+                        {"value": entry["satellite_entity_id"],
+                         "label": f"{entry['satellite_name']} ({entry['satellite_ip']})"}
+                        for entry in self.satellites
+                    ])
+                ),
+            }),
+        )
