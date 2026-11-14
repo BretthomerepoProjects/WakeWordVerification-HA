@@ -21,7 +21,7 @@ Leave the archive directory blank to create a private wake_word_verification_arc
 
 ## Set up from the Home Assistant UI
 
-After downloading through HACS, restart Home Assistant. Go to Settings → Devices & services → Add integration → Wake Word Verification. Choose the Parakeet-backed STT entity and set the wake phrase, language and private archive directory. Then pick each allowed satellite entity and enter its reserved LAN IP. Check **Add another satellite** before submitting an entry to register another device. Later, open Wake Word Verification under Devices & services and select Configure to add another satellite. Remove any existing YAML block before switching to UI setup.
+After downloading through HACS, restart Home Assistant. Go to Settings → Devices & services → Add integration → Wake Word Verification. Set the wake phrase and private archive directory. Select the Parakeet-backed STT entity, then choose from the languages reported by that engine. Pick each allowed satellite entity and review the suggested ESPHome IP, or enter its reserved LAN IP manually. Check **Add another satellite** before submitting an entry to register another device. Later, open Wake Word Verification under Devices & services and select Configure to add another satellite or change the STT engine and language. Remove any existing YAML block before switching to UI setup.
 
 ## Satellite protocol
 

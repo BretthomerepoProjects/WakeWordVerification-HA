@@ -5,23 +5,40 @@
         "title": "Configure wake verification",
         "data": {
           "phrase": "Expected wake phrase",
-          "stt_engine": "Parakeet-backed STT entity",
-          "language": "STT language",
           "archive_dir": "Private archive directory"
         }
       },
       "satellite": {
-        "title": "Allow a satellite",
-        "description": "Pick the entity that identifies this satellite and enter its reserved LAN address.",
         "data": {
-          "satellite_ip": "Satellite reserved LAN IP",
-          "satellite_entity_id": "Satellite entity",
-          "add_another": "Add another satellite"
+          "satellite_entity_id": "Satellite entity"
+        },
+        "title": "Select a satellite"
+      },
+      "engine": {
+        "data": {
+          "stt_engine": "STT engine"
+        },
+        "title": "Select speech-to-text engine"
+      },
+      "language": {
+        "data": {
+          "language": "STT language"
+        },
+        "title": "Choose a supported language"
+      },
+      "address": {
+        "description": "Review the suggested address or enter the satellite's reserved LAN IP.",
+        "title": "Confirm satellite address",
+        "data": {
+          "add_another": "Add another satellite",
+          "satellite_ip": "Satellite reserved LAN IP"
         }
       }
     },
     "error": {
-      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity."
+      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity.",
+      "stt_unavailable": "Select an available speech-to-text engine that reports supported languages.",
+      "invalid_language": "Select a language reported by the speech-to-text engine."
     },
     "abort": {
       "already_configured": "Wake Word Verification is already configured."
@@ -29,16 +46,44 @@
   },
   "options": {
     "error": {
-      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity."
+      "invalid_satellite": "Enter a valid LAN address. Each satellite needs a unique IP and entity.",
+      "stt_unavailable": "Select an available speech-to-text engine that reports supported languages.",
+      "invalid_language": "Select a language reported by the speech-to-text engine."
     },
     "step": {
       "init": {
-        "title": "Add satellite",
+        "description": "Paired satellites:\n\n{satellites}",
+        "title": "Configure Wake Word Verification",
+        "menu_options": {
+          "satellite": "Add satellite",
+          "engine": "Change STT engine or language"
+        }
+      },
+      "engine": {
         "data": {
-          "satellite_entity_id": "Satellite entity",
-          "satellite_ip": "Satellite reserved LAN IP"
+          "stt_engine": "STT engine"
         },
-        "description": "Paired satellites:\n\n{satellites}\n\nSelect another satellite below to add it."
+        "title": "Select speech-to-text engine"
+      },
+      "language": {
+        "data": {
+          "language": "STT language"
+        },
+        "title": "Choose a supported language"
+      },
+      "satellite": {
+        "data": {
+          "satellite_entity_id": "Satellite entity"
+        },
+        "title": "Select a satellite"
+      },
+      "address": {
+        "description": "Review the suggested address or enter the satellite's reserved LAN IP.",
+        "title": "Confirm satellite address",
+        "data": {
+          "add_another": "Add another satellite",
+          "satellite_ip": "Satellite reserved LAN IP"
+        }
       }
     }
   }

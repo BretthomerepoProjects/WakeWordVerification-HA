@@ -216,6 +216,8 @@ class VerifyView(HomeAssistantView):
         engine = stt.async_get_speech_to_text_engine(self.hass, self.settings["stt_engine"])
         if engine is None:
             return None, "stt_unavailable"
+        if self.settings["language"] not in engine.supported_languages:
+            return None, "stt_language_unsupported"
         metadata = stt.SpeechMetadata(
             language=self.settings["language"],
             format=stt.AudioFormats.WAV,
@@ -271,7 +273,9 @@ async def async_setup_entry(hass, entry):
 
 async def update_satellites(hass, entry):
     settings = CONFIG_SCHEMA({DOMAIN: {**entry.data, **entry.options}})[DOMAIN]
-    hass.data[DOMAIN].satellites = settings["satellites"]
+    view = hass.data[DOMAIN]
+    view.settings = settings
+    view.satellites = settings["satellites"]
     register_satellites(hass, entry, settings["satellites"])
 
 
